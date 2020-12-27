@@ -1,0 +1,7 @@
+make filter && ./filter -g images/yard.bmp out.bmp
+
+make filter && ./filter -s images/yard.bmp out.bmp
+
+make filter && ./filter -r images/yard.bmp out.bmp
+
+make filter && ./filter -b images/tower.bmp out.bmp
