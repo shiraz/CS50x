@@ -1,0 +1,15 @@
+sort1 uses: bubble sort
+
+How do you know?: Because for sorted5000.txt, the running time was the quickest.
+
+sort2 uses: merge sort
+
+How do you know?: Because the random5000.txt and sorted5000.txt running times were comparable (1.38 and 1.379s respectively). It was also the quickest for the random50000.txt and the reversed50000.txt data sets.
+
+sort3 uses: selection sort
+
+How do you know?: Because even for sorted numbers, the running time was the slowest and comparable to the high random and reversed data sets.
+
+
+Further Notes:
+If one sorting algorithm has a much better Ω than it does O, then you might expect that it would be much faster on a text file that's already sorted.
