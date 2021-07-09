@@ -1,7 +1,6 @@
 import csv
 import os.path
 import sys
-import uuid
 
 
 def main():
@@ -29,7 +28,7 @@ def get_str_count(dna, str_seq):
     dna_len = len(dna)
     str_seq_len = len(str_seq)
     index = 0
-    count_obj = {}
+    counts = []
     str_count = 0
     last_index = 0
 
@@ -48,14 +47,13 @@ def get_str_count(dna, str_seq):
             index = index + str_seq_len
         else:
             if str_count > 0:
-                dynamic_key = str(uuid.uuid4())[:8]
-                count_obj[dynamic_key] = str_count
+                counts.append(str_count)
             str_count = 0
             index = last_index + 1
 
-    if count_obj:
-        highest_str_repeat_count = max(count_obj, key=count_obj.get)
-        return count_obj[highest_str_repeat_count]
+    if len(counts) > 0:
+        highest_str_repeat_count = max(counts)
+        return highest_str_repeat_count
     return 0
 
 
