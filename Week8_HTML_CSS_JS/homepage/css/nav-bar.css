@@ -1,0 +1,22 @@
+.nav-bar {
+    background-color: red;
+    display: grid;
+    justify-content: center;
+    align-content: center;
+    background-image: linear-gradient(to right, #f4c430, #ffb976, #ffbdb9, #ffd1eb, #ffe7ff, #e9e1fd, #d1dbf7, #bbd5ed, #6dbcd3, #00a2a2, #00855d, #006400);
+}
+
+.nav-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 20px;
+    height: 100%;
+    align-content: center;
+    justify-items: center;
+}
+
+.nav-container > .nav-item > a {
+    color: #000089;
+    font-size: 20px;
+    font-weight: bold;
+}
