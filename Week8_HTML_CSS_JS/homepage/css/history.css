@@ -1,0 +1,42 @@
+.period-table {
+	display: grid;
+	min-width: 100%;
+	grid-template-columns: minmax(100px, 1fr) minmax(100px, 1fr);
+	border-collapse: collapse;
+	padding-top: 20px;
+}
+
+.period-table-columns,
+.period-table-body,
+.row {
+	display: contents;
+}
+
+.row:nth-child(even) td {
+	background: #f4c430;
+}
+
+.row-header {
+	font-weight: normal;
+	font-size: 1.1rem;
+	background: green;
+	color: white;
+}
+
+.row-header:last-child {
+	border: 0;
+}
+
+.row-header,
+.period-name,
+.period-year {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding: 20px;
+}
+
+.period-name,
+.period-year {
+	color: #000089;
+	padding: 15px 0px;
+}
