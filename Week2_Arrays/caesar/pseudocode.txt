@@ -1,0 +1,15 @@
+Check if arguments were passed correctly.
+Check to see if the key argument is valid and only numbers. This is done to prevent exceptions.
+Convert the key argument to an int.
+Get the plain text.
+
+for each character in the string
+    Check if the current character is a number, skip otherwise.
+    Rotate the character.
+    If an overflow occurs, execute the wraparound logic.
+    Store the index mapping based on whether the character is upper case or lower case.
+    Calculate the new character index, rotate the character and revert it back to the original ASCII index.
+    Store the rotated character.
+    Overwrite the current character with the new rotated character.
+
+Print the string i,e the cipher text.
