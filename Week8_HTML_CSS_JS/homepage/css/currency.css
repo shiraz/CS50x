@@ -1,0 +1,11 @@
+.currency-grid {
+    padding-top: 25px;
+}
+
+.d-copy {
+    color: #000089;
+}
+
+tr:nth-child(even) td {
+	background: #f4c430;
+}

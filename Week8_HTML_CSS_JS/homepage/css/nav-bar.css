@@ -13,6 +13,7 @@
     height: 100%;
     align-content: center;
     justify-items: center;
+    list-style-type: none;
 }
 
 .nav-container > .nav-item > a {

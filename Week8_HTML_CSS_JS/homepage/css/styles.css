@@ -6,3 +6,10 @@
     font-size: 18px;
     color: #000000;
 }
+
+.row-header {
+	font-weight: normal;
+	font-size: 1.1rem;
+	background: green;
+	color: white;
+}
