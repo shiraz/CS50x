@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quote Result
+{% endblock %}
+
+{% block main %}
+    <article>
+        <h2 class="article-header">{{result.name}} Stock Quote</h2>
+        <p>A share of {{result.name}} ({{result.symbol}}) costs {{result.price}}.</p>
+    </article>
+{% endblock %}
