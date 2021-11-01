@@ -45,3 +45,7 @@ main img
     /* Constrain images on small screens */
     max-width: 100%;
 }
+
+.article-header {
+    padding-bottom: 30px;
+}

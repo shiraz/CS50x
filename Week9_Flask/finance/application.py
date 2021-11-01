@@ -53,7 +53,61 @@ def index():
 @login_required
 def buy():
     """Buy shares of stock"""
-    return apology("TODO")
+    if request.method == "POST":
+
+        # Store the user_id.
+        user_id = session["user_id"]
+
+        # Ensure symbol was submitted.
+        symbol = request.form.get("symbol")
+        if not symbol:
+            return apology("must provide symbol", 403)
+
+        # Ensure shares count was submitted.
+        if not request.form.get("shares"):
+            return apology("must provide shares", 403)
+
+        # Ensure that the correct input is passed in shares.
+        shares = request.form.get("shares")
+        if not shares.isnumeric() or int(shares) <= 0:
+            return apology("shares input is not a positive integer", 403)
+
+        num_shares = int(shares)
+
+        # Lookup the stock symbol by calling the lookup function.
+        result = lookup(symbol)
+
+        # Ensure that the stock data is valid.
+        if not result:
+            error_msg = "no results found for the symbol, '%s'" % symbol
+            return apology(error_msg, 403)
+
+        # Query the database for the cash.
+        rows = db.execute("SELECT cash FROM users WHERE id = ?", user_id)
+        cash = rows[0]["cash"]
+
+        # Calculate the total cost of the stocks.
+        price = result["price"]
+        total_cost = price * num_shares
+
+        # Ensure that the user has enough money to buy the stock.
+        if total_cost > cash:
+            error_msg = "not enough money ($%d) to buy %d shares of the %s stock" % (cash, num_shares, symbol)
+            return apology(error_msg, 403)
+
+        leftover_cash = cash - total_cost
+
+        # Purchase the stock.
+        db.execute("INSERT INTO purchases (user_id, symbol, shares, price) VALUES(?, ?, ?, ?)", user_id, symbol, num_shares, total_cost)
+        db.execute("UPDATE users SET cash = ? WHERE id = ?", leftover_cash, user_id)
+
+        # Redirect the user back to the index page.
+        return redirect("/")
+
+
+    else:
+        # When requested via GET, should display form to request a stock buy.
+        return render_template("buy.html")
 
 
 @app.route("/history")
@@ -114,7 +168,29 @@ def logout():
 @login_required
 def quote():
     """Get stock quote."""
-    return apology("TODO")
+
+    if request.method == "POST":
+        # When form is submitted via POST, , and display the results.
+
+        # Ensure quote was submitted.
+        symbol = request.form.get("symbol")
+        if not symbol:
+            return apology("must provide quote", 403)
+
+        # Lookup the stock symbol by calling the lookup function.
+        result = lookup(symbol)
+
+        if not result:
+            error_msg = "no results found for the symbol, '%s'" % symbol
+            return apology(error_msg, 403)
+
+        result["price"] = usd(result["price"])
+
+        return render_template("quoted.html", result=result)
+
+    else:
+        # When requested via GET, should display form to request a stock quote.
+        return render_template("quote.html")
 
 
 @app.route("/register", methods=["GET", "POST"])
