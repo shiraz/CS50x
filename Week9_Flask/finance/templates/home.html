@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+    <div class="history-container">
+        <table class="history-table">
+            <tr class="history-table-header-row">
+                <th class="history-table-row-header">Symbol</th>
+                <th class="history-table-row-header">Name</th>
+                <th class="history-table-row-header">Shares</th>
+                <th class="history-table-row-header">Price</th>
+                <th class="history-table-row-header">TOTAL</th>
+            </tr>
+    	    {% for row in rows %}
+                <tr class="history-table-row">
+                    <td class="history-table-row-cell">{{row.symbol}}</td>
+                    <td class="history-table-row-cell">{{row.name}}</td>
+                    <td class="history-table-row-cell">{{row.shares}}</td>
+                    <td class="history-table-row-cell">{{row.price}}</td>
+                    <td class="history-table-row-cell">{{row.total}}</td>
+                </tr>
+		     {% endfor %}
+                 <tr class="history-table-row">
+                    <td class="history-table-row-cell no-border"></td>
+                    <td class="history-table-row-cell no-border"></td>
+                    <td class="history-table-row-cell no-border"></td>
+                    <td class="history-table-row-cell no-border"></td>
+                    <td class="history-table-row-cell no-border bolded">{{total_portfolio_value}}</td>
+                </tr>
+        </table>
+    </div>
+{% endblock %}

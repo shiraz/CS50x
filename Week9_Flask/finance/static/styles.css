@@ -49,3 +49,35 @@ main img
 .article-header {
     padding-bottom: 30px;
 }
+
+.message-container {
+    background-color: #89CFF0;
+    color: darkblue;
+}
+
+.history-table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.history-table-row-header {
+    border: 1px solid #dddddd;
+    text-align: center;
+    background-color: darkblue;
+    color: white;
+}
+
+.history-table-row-cell {
+  border: 1px solid #dddddd;
+  text-align: center;
+  padding: 8px;
+}
+
+td.history-table-row-cell.no-border {
+    border: none;
+}
+
+td.history-table-row-cell.bolded {
+    font-weight: bold;
+}

@@ -1,13 +1,13 @@
 import os
 
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, usd
+from helpers import apology, login_required, lookup, usd, get_available_shares, get_cash, get_symbols
 
 # Configure application
 app = Flask(__name__)
@@ -46,7 +46,54 @@ if not os.environ.get("API_KEY"):
 @login_required
 def index():
     """Show portfolio of stocks"""
-    return apology("TODO")
+
+    # Store the user_id.
+    user_id = session["user_id"]
+
+    # Get the existing symbols.
+    symbol_rows = get_symbols(user_id)
+
+    rows = []
+    total_portfolio_value = 0
+
+    if len(symbol_rows) > 0:
+
+        # Calculate the shares and price for each symbol.
+        for symbol_row in symbol_rows:
+            symbol = symbol_row["symbol"]
+            shares_and_price = get_available_shares(user_id, symbol)
+            # Lookup the stock symbol by calling the lookup function.
+            result = lookup(symbol)
+            # Calculate the total price.
+            available_shares = shares_and_price["available_shares"]
+            price = result["price"]
+            total_amount = price * available_shares
+            total_portfolio_value = total_portfolio_value + total_amount
+
+            if available_shares > 0:
+                rows.append({
+                    "symbol": symbol,
+                    "name": shares_and_price["name"],
+                    "shares": shares_and_price["available_shares"],
+                    "price": usd(price),
+                    "total": usd(total_amount)
+                })
+
+    # Get the current cash value.
+    cash = get_cash(user_id)
+    # Add current cash row.
+    rows.append({
+        "symbol": "CASH",
+        "name": "",
+        "shares": "",
+        "price": "",
+        "total": usd(cash)
+    })
+
+    # Calculate the total portfolio value.
+    total_portfolio_value = usd(total_portfolio_value + cash)
+
+    return render_template("home.html", rows=rows, total_portfolio_value=total_portfolio_value)
 
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -76,6 +123,7 @@ def buy():
 
         # Lookup the stock symbol by calling the lookup function.
         result = lookup(symbol)
+        symbol = symbol.upper()
 
         # Ensure that the stock data is valid.
         if not result:
@@ -83,8 +131,7 @@ def buy():
             return apology(error_msg, 403)
 
         # Query the database for the cash.
-        rows = db.execute("SELECT cash FROM users WHERE id = ?", user_id)
-        cash = rows[0]["cash"]
+        cash = get_cash(user_id)
 
         # Calculate the total cost of the stocks.
         price = result["price"]
@@ -97,13 +144,12 @@ def buy():
 
         leftover_cash = cash - total_cost
 
-        # Purchase the stock.
-        db.execute("INSERT INTO purchases (user_id, symbol, shares, price) VALUES(?, ?, ?, ?)", user_id, symbol, num_shares, total_cost)
+        # Purchase the stock and update the tables in the database.
+        db.execute("INSERT INTO history (user_id, symbol, name, transaction_type, shares, price) VALUES(?, ?, ?, ?, ?, ?)", user_id, symbol, result["name"], "buy", num_shares, total_cost)
         db.execute("UPDATE users SET cash = ? WHERE id = ?", leftover_cash, user_id)
 
         # Redirect the user back to the index page.
         return redirect("/")
-
 
     else:
         # When requested via GET, should display form to request a stock buy.
@@ -114,7 +160,14 @@ def buy():
 @login_required
 def history():
     """Show history of transactions"""
-    return apology("TODO")
+
+    # Store the user_id.
+    user_id = session["user_id"]
+
+    # Query database to get the history
+    rows = db.execute("SELECT * FROM history WHERE user_id = ? ORDER BY transacted DESC", user_id)
+
+    return render_template("history.html", rows=rows)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -202,15 +255,15 @@ def register():
 
         # Ensure username was submitted.
         if not request.form.get("username"):
-            return apology("must provide username", 403)
+            return apology("must provide username", 400)
 
         # Ensure password was submitted.
         elif not request.form.get("password"):
-            return apology("must provide password", 403)
+            return apology("must provide password", 400)
 
         # Ensure confirm password was submitted.
         elif not request.form.get("confirmation"):
-            return apology("must confirm password", 403)
+            return apology("must confirm password", 400)
 
         # Query database for username.
         username = request.form.get("username")
@@ -219,7 +272,7 @@ def register():
         # Ensure that a user with the same username does not exist in the database.
         if len(rows) > 0:
             error_msg = "user with the username, '%s' already exists" % username
-            return apology(error_msg, 403)
+            return apology(error_msg, 400)
 
         # Validate the password to have at least 2 letters, no spaces, at least 1 number, and at least 1 symbol.
         pwd = request.form.get("password")
@@ -237,21 +290,26 @@ def register():
             if not c.isalnum() and not c.isspace():
                 check_symbol = True
         if not check_number:
-            return apology("password must contain a number", 403)
+            return apology("password must contain a number", 400)
         if num_letters < 2:
-            return apology("password must contain at least 2 letters", 403)
+            return apology("password must contain at least 2 letters", 400)
         if not check_symbol:
-            return apology("password must contain at least 1 symbol / special character", 403)
+            return apology("password must contain at least 1 symbol / special character", 400)
         if space_check:
-           return apology("password must not have any spaces", 403)
+           return apology("password must not have any spaces", 400)
         if pwd != request.form.get("confirmation"):
-            return apology("passwords don't match", 403)
+            return apology("passwords don't match", 400)
 
         # Insert the user into the database.
         db.execute("INSERT INTO users (username, hash) VALUES(?, ?)", username, generate_password_hash(pwd))
 
-        # Redirect user to the login page.
-        return redirect("/login")
+        # Query for the user in the DB to get the id.
+        new_user_rows = db.execute("SELECT * FROM users WHERE username = ?", username)
+        session["user_id"] = new_user_rows[0]["id"]
+
+        # # Redirect user to the login page.
+        # return redirect("/login")
+        return redirect("/")
 
     else:
         return render_template("register.html")
@@ -260,8 +318,64 @@ def register():
 @app.route("/sell", methods=["GET", "POST"])
 @login_required
 def sell():
+    # Store the user_id.
+    user_id = session["user_id"]
+
     """Sell shares of stock"""
-    return apology("TODO")
+    if request.method == "POST":
+
+        # Ensure symbol was submitted.
+        symbol = request.form.get("symbol")
+        if not symbol:
+            return apology("must provide symbol", 403)
+
+        # Calculate available shares.
+        available_shares = get_available_shares(user_id, symbol)["available_shares"]
+
+        # Check if shares are available to sell.
+        if not available_shares or available_shares == 0:
+            error_msg = "no shares found for the stock symbol, '%s' to sell" % symbol
+            return apology(error_msg, 403)
+
+        # Ensure that the correct input is passed in shares.
+        shares = request.form.get("shares")
+        if not shares.isnumeric() or int(shares) <= 0:
+            return apology("shares input is not a positive integer", 403)
+
+        num_shares = int(shares)
+
+        # Check if user tries to sell more shares than what is available.
+        if num_shares > available_shares:
+            error_msg = "user does not own %d shares of the %s stock to sell" % (num_shares, symbol)
+            return apology(error_msg, 403)
+
+        # Lookup the stock symbol by calling the lookup function.
+        result = lookup(symbol)
+
+        # Calculate the new total of the stock share based on current data.
+        price = result["price"]
+        total_amount = price * num_shares
+
+        # Query the database for the cash.
+        cash = get_cash(user_id)
+        new_total_cash = cash + total_amount
+
+        # Sell the stock and update the tables in the database.
+        db.execute("INSERT INTO history (user_id, symbol, name, transaction_type, shares, price) VALUES(?, ?, ?, ?, ?, ?)", user_id, symbol.upper(), result["name"], "sell", -abs(num_shares), total_amount)
+        db.execute("UPDATE users SET cash = ? WHERE id = ?", new_total_cash, user_id)
+
+        # Redirect the user back to the index page.
+        return redirect("/")
+
+    else:
+        # Get the existing symbols.
+        symbols = get_symbols(user_id)
+
+        if len(symbols) == 0:
+            return apology("No stock shares to sell", 403)
+
+        # When requested via GET, should display form to sell existing stock shares.
+        return render_template("sell.html", symbols=symbols)
 
 
 def errorhandler(e):
