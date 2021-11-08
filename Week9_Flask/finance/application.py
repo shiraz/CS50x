@@ -7,7 +7,7 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, usd, get_available_shares, get_cash, get_symbols
+from helpers import apology, login_required, lookup, usd, get_available_shares, get_symbols
 
 # Configure application
 app = Flask(__name__)
@@ -80,7 +80,7 @@ def index():
                 })
 
     # Get the current cash value.
-    cash = get_cash(user_id)
+    cash = db.execute("SELECT cash FROM users WHERE id = ?", user_id)[0]["cash"]
     # Add current cash row.
     rows.append({
         "symbol": "CASH",
@@ -108,16 +108,16 @@ def buy():
         # Ensure symbol was submitted.
         symbol = request.form.get("symbol")
         if not symbol:
-            return apology("must provide symbol", 403)
+            return apology("must provide symbol")
 
         # Ensure shares count was submitted.
         if not request.form.get("shares"):
-            return apology("must provide shares", 403)
+            return apology("must provide shares")
 
         # Ensure that the correct input is passed in shares.
         shares = request.form.get("shares")
         if not shares.isnumeric() or int(shares) <= 0:
-            return apology("shares input is not a positive integer", 403)
+            return apology("shares input is not a positive integer")
 
         num_shares = int(shares)
 
@@ -128,10 +128,10 @@ def buy():
         # Ensure that the stock data is valid.
         if not result:
             error_msg = "no results found for the symbol, '%s'" % symbol
-            return apology(error_msg, 403)
+            return apology(error_msg)
 
         # Query the database for the cash.
-        cash = get_cash(user_id)
+        cash = db.execute("SELECT cash FROM users WHERE id = ?", user_id)[0]["cash"]
 
         # Calculate the total cost of the stocks.
         price = result["price"]
@@ -140,12 +140,13 @@ def buy():
         # Ensure that the user has enough money to buy the stock.
         if total_cost > cash:
             error_msg = "not enough money ($%d) to buy %d shares of the %s stock" % (cash, num_shares, symbol)
-            return apology(error_msg, 403)
+            return apology(error_msg)
 
         leftover_cash = cash - total_cost
 
         # Purchase the stock and update the tables in the database.
-        db.execute("INSERT INTO history (user_id, symbol, name, transaction_type, shares, price) VALUES(?, ?, ?, ?, ?, ?)", user_id, symbol, result["name"], "buy", num_shares, total_cost)
+        db.execute("INSERT INTO history (user_id, symbol, name, transaction_type, shares, price) VALUES(?, ?, ?, ?, ?, ?)",
+                   user_id, symbol, result["name"], "buy", num_shares, total_cost)
         db.execute("UPDATE users SET cash = ? WHERE id = ?", leftover_cash, user_id)
 
         # Redirect the user back to the index page.
@@ -196,7 +197,8 @@ def login():
             return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
+        if len(rows) > 0:
+            session["user_id"] = rows[0]["id"]
 
         # Redirect user to home page
         return redirect("/")
@@ -228,14 +230,14 @@ def quote():
         # Ensure quote was submitted.
         symbol = request.form.get("symbol")
         if not symbol:
-            return apology("must provide quote", 403)
+            return apology("must provide quote")
 
         # Lookup the stock symbol by calling the lookup function.
         result = lookup(symbol)
 
         if not result:
             error_msg = "no results found for the symbol, '%s'" % symbol
-            return apology(error_msg, 403)
+            return apology(error_msg)
 
         result["price"] = usd(result["price"])
 
@@ -255,18 +257,18 @@ def register():
 
         # Ensure username was submitted.
         if not request.form.get("username"):
-            return apology("must provide username", 400)
+            return apology("must provide username")
 
         # Ensure password was submitted.
         elif not request.form.get("password"):
-            return apology("must provide password", 400)
+            return apology("must provide password")
 
         # Ensure confirm password was submitted.
         elif not request.form.get("confirmation"):
-            return apology("must confirm password", 400)
+            return apology("must confirm password")
 
         if request.form.get("password") != request.form.get("confirmation"):
-            return apology("passwords don't match", 400)
+            return apology("passwords don't match")
 
         # Query database for username.
         username = request.form.get("username")
@@ -275,7 +277,7 @@ def register():
         # Ensure that a user with the same username does not exist in the database.
         if len(rows) > 0:
             error_msg = "user with the username, '%s' already exists" % username
-            return apology(error_msg, 400)
+            return apology(error_msg)
 
         # Validate the password to have at least 2 letters, no spaces, at least 1 number, and at least 1 symbol.
         pwd = request.form.get("password")
@@ -293,20 +295,21 @@ def register():
             if not c.isalnum() and not c.isspace():
                 check_symbol = True
         if not check_number:
-            return apology("password must contain a number", 400)
-        # if num_letters < 2:
-        #     return apology("password must contain at least 2 letters", 400)
+            return apology("password must contain a number")
+        if num_letters < 2:
+            return apology("password must contain at least 2 letters")
         if not check_symbol:
-            return apology("password must contain at least 1 symbol / special character", 400)
+            return apology("password must contain at least 1 symbol / special character")
         if space_check:
-          return apology("password must not have any spaces", 400)
+            return apology("password must not have any spaces")
 
         # Insert the user into the database.
         db.execute("INSERT INTO users (username, hash) VALUES(?, ?)", username, generate_password_hash(pwd))
 
         # Query for the user in the DB to get the id.
         new_user_rows = db.execute("SELECT * FROM users WHERE username = ?", username)
-        session["user_id"] = new_user_rows[0]["id"]
+        if len(new_user_rows) > 0:
+            session["user_id"] = new_user_rows[0]["id"]
 
         # # Redirect user to the login page.
         return redirect("/login")
@@ -357,11 +360,12 @@ def sell():
         total_amount = price * num_shares
 
         # Query the database for the cash.
-        cash = get_cash(user_id)
+        cash = db.execute("SELECT cash FROM users WHERE id = ?", user_id)[0]["cash"]
         new_total_cash = cash + total_amount
 
         # Sell the stock and update the tables in the database.
-        db.execute("INSERT INTO history (user_id, symbol, name, transaction_type, shares, price) VALUES(?, ?, ?, ?, ?, ?)", user_id, symbol.upper(), result["name"], "sell", -abs(num_shares), total_amount)
+        db.execute("INSERT INTO history (user_id, symbol, name, transaction_type, shares, price) VALUES(?, ?, ?, ?, ?, ?)",
+                   user_id, symbol.upper(), result["name"], "sell", -abs(num_shares), total_amount)
         db.execute("UPDATE users SET cash = ? WHERE id = ?", new_total_cash, user_id)
 
         # Redirect the user back to the index page.

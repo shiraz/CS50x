@@ -9,6 +9,7 @@ from functools import wraps
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///finance.db")
 
+
 def apology(message, code=400):
     """Render message as an apology to user."""
     def escape(s):
@@ -66,15 +67,18 @@ def usd(value):
     """Format value as USD."""
     return f"${value:,.2f}"
 
+
 def get_available_shares(user_id, symbol):
     # Calculate the buy total shares.
-    buy_row = db.execute("SELECT SUM(shares) AS buy_shares, name FROM history WHERE user_id = ? AND symbol = ? AND transaction_type = 'buy'", user_id, symbol)[0]
+    buy_row = db.execute(
+        "SELECT SUM(shares) AS buy_shares, name FROM history WHERE user_id = ? AND symbol = ? AND transaction_type = 'buy'", user_id, symbol)[0]
     buy_shares = buy_row["buy_shares"]
     buy_shares = 0 if not buy_shares else buy_shares
     name = buy_row["name"]
 
     # Calculate the buy sell shares.
-    sell_row = db.execute("SELECT SUM(shares) AS sell_shares FROM history WHERE user_id = ? AND symbol = ? AND transaction_type = 'sell'", user_id, symbol)[0]
+    sell_row = db.execute(
+        "SELECT SUM(shares) AS sell_shares FROM history WHERE user_id = ? AND symbol = ? AND transaction_type = 'sell'", user_id, symbol)[0]
     sell_shares = sell_row["sell_shares"]
     sell_shares = 0 if not sell_shares else sell_shares
 
@@ -87,11 +91,6 @@ def get_available_shares(user_id, symbol):
         "available_shares": available_shares
     }
 
-def get_cash(user_id):
-    cash_row = db.execute("SELECT cash FROM users WHERE id = ?", user_id)
-    cash = cash_row[0]["cash"]
-    cash = 0 if not cash else cash
-    return cash
 
 def get_symbols(user_id):
     return db.execute("SELECT DISTINCT symbol FROM history WHERE user_id = ?", user_id)
