@@ -1,7 +1,7 @@
 import os
 
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
@@ -265,6 +265,9 @@ def register():
         elif not request.form.get("confirmation"):
             return apology("must confirm password", 400)
 
+        if request.form.get("password") != request.form.get("confirmation"):
+            return apology("passwords don't match", 400)
+
         # Query database for username.
         username = request.form.get("username")
         rows = db.execute("SELECT * FROM users WHERE username = ?", username)
@@ -291,14 +294,12 @@ def register():
                 check_symbol = True
         if not check_number:
             return apology("password must contain a number", 400)
-        if num_letters < 2:
-            return apology("password must contain at least 2 letters", 400)
+        # if num_letters < 2:
+        #     return apology("password must contain at least 2 letters", 400)
         if not check_symbol:
             return apology("password must contain at least 1 symbol / special character", 400)
         if space_check:
-           return apology("password must not have any spaces", 400)
-        if pwd != request.form.get("confirmation"):
-            return apology("passwords don't match", 400)
+          return apology("password must not have any spaces", 400)
 
         # Insert the user into the database.
         db.execute("INSERT INTO users (username, hash) VALUES(?, ?)", username, generate_password_hash(pwd))
@@ -308,8 +309,7 @@ def register():
         session["user_id"] = new_user_rows[0]["id"]
 
         # # Redirect user to the login page.
-        # return redirect("/login")
-        return redirect("/")
+        return redirect("/login")
 
     else:
         return render_template("register.html")
