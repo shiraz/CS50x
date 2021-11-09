@@ -7,7 +7,7 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required, lookup, usd, get_available_shares, get_symbols
+from helpers import apology, login_required, lookup, usd
 
 # Configure application
 app = Flask(__name__)
@@ -80,7 +80,7 @@ def index():
                 })
 
     # Get the current cash value.
-    cash = db.execute("SELECT cash FROM users WHERE id = ?", user_id)[0]["cash"]
+    cash = get_cash(user_id)
     # Add current cash row.
     rows.append({
         "symbol": "CASH",
@@ -93,7 +93,20 @@ def index():
     # Calculate the total portfolio value.
     total_portfolio_value = usd(total_portfolio_value + cash)
 
-    return render_template("home.html", rows=rows, total_portfolio_value=total_portfolio_value)
+    # # Get the most recent transaction.
+    recent_transaction_row = db.execute("SELECT * FROM history WHERE user_id = ? ORDER BY transacted DESC LIMIT 1", user_id)
+
+    # Construct message.
+    if len(recent_transaction_row) > 0:
+        recent_transaction = recent_transaction_row[0]
+        verb = "Bought" if recent_transaction["transaction_type"] == "buy" else "Sold"
+        message = "%s %d %s stock share(s) for %s" % (
+            verb, recent_transaction["shares"], recent_transaction["symbol"], usd(recent_transaction["price"]))
+    else:
+        message = ""
+
+    # Render the home template.
+    return render_template("home.html", rows=rows, total_portfolio_value=total_portfolio_value, message=message)
 
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -131,7 +144,7 @@ def buy():
             return apology(error_msg)
 
         # Query the database for the cash.
-        cash = db.execute("SELECT cash FROM users WHERE id = ?", user_id)[0]["cash"]
+        cash = get_cash(user_id)
 
         # Calculate the total cost of the stocks.
         price = result["price"]
@@ -143,10 +156,11 @@ def buy():
             return apology(error_msg)
 
         leftover_cash = cash - total_cost
+        name = result["name"]
 
         # Purchase the stock and update the tables in the database.
         db.execute("INSERT INTO history (user_id, symbol, name, transaction_type, shares, price) VALUES(?, ?, ?, ?, ?, ?)",
-                   user_id, symbol, result["name"], "buy", num_shares, total_cost)
+                   user_id, symbol, name, "buy", num_shares, total_cost)
         db.execute("UPDATE users SET cash = ? WHERE id = ?", leftover_cash, user_id)
 
         # Redirect the user back to the index page.
@@ -321,16 +335,17 @@ def register():
 @app.route("/sell", methods=["GET", "POST"])
 @login_required
 def sell():
+    """Sell shares of stock"""
+
     # Store the user_id.
     user_id = session["user_id"]
 
-    """Sell shares of stock"""
     if request.method == "POST":
 
         # Ensure symbol was submitted.
         symbol = request.form.get("symbol")
         if not symbol:
-            return apology("must provide symbol", 403)
+            return apology("must provide symbol")
 
         # Calculate available shares.
         available_shares = get_available_shares(user_id, symbol)["available_shares"]
@@ -338,19 +353,19 @@ def sell():
         # Check if shares are available to sell.
         if not available_shares or available_shares == 0:
             error_msg = "no shares found for the stock symbol, '%s' to sell" % symbol
-            return apology(error_msg, 403)
+            return apology(error_msg)
 
         # Ensure that the correct input is passed in shares.
         shares = request.form.get("shares")
         if not shares.isnumeric() or int(shares) <= 0:
-            return apology("shares input is not a positive integer", 403)
+            return apology("shares input is not a positive integer")
 
         num_shares = int(shares)
 
         # Check if user tries to sell more shares than what is available.
         if num_shares > available_shares:
             error_msg = "user does not own %d shares of the %s stock to sell" % (num_shares, symbol)
-            return apology(error_msg, 403)
+            return apology(error_msg)
 
         # Lookup the stock symbol by calling the lookup function.
         result = lookup(symbol)
@@ -360,7 +375,7 @@ def sell():
         total_amount = price * num_shares
 
         # Query the database for the cash.
-        cash = db.execute("SELECT cash FROM users WHERE id = ?", user_id)[0]["cash"]
+        cash = get_cash(user_id)
         new_total_cash = cash + total_amount
 
         # Sell the stock and update the tables in the database.
@@ -376,10 +391,42 @@ def sell():
         symbols = get_symbols(user_id)
 
         if len(symbols) == 0:
-            return apology("No stock shares to sell", 403)
+            return apology("No stock shares to sell")
 
         # When requested via GET, should display form to sell existing stock shares.
         return render_template("sell.html", symbols=symbols)
+
+
+def get_available_shares(user_id, symbol):
+    # Calculate the buy total shares.
+    buy_row = db.execute(
+        "SELECT SUM(shares) AS buy_shares, name FROM history WHERE user_id = ? AND symbol = ? AND transaction_type = 'buy'", user_id, symbol)[0]
+    buy_shares = buy_row["buy_shares"]
+    buy_shares = 0 if not buy_shares else buy_shares
+    name = buy_row["name"]
+
+    # Calculate the buy sell shares.
+    sell_row = db.execute(
+        "SELECT SUM(shares) AS sell_shares FROM history WHERE user_id = ? AND symbol = ? AND transaction_type = 'sell'", user_id, symbol)[0]
+    sell_shares = sell_row["sell_shares"]
+    sell_shares = 0 if not sell_shares else sell_shares
+
+    # Calculate the total shares.
+    available_shares = buy_shares + sell_shares if buy_shares > 0 else null
+
+    return {
+        "symbol": symbol,
+        "name": name,
+        "available_shares": available_shares
+    }
+
+
+def get_cash(user_id):
+    return db.execute("SELECT cash FROM users WHERE id = ?", user_id)[0]["cash"]
+
+
+def get_symbols(user_id):
+    return db.execute("SELECT DISTINCT symbol FROM history WHERE user_id = ?", user_id)
 
 
 def errorhandler(e):

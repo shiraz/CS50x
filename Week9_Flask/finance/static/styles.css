@@ -46,10 +46,6 @@ main img
     max-width: 100%;
 }
 
-.article-header {
-    padding-bottom: 30px;
-}
-
 .message-container {
     background-color: #89CFF0;
     color: darkblue;

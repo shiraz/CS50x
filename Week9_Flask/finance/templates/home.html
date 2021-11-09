@@ -6,6 +6,11 @@
 
 {% block main %}
     <div class="history-container">
+        {% if message|length %}
+            <article class="message-container">
+                <p class="message">{{message}}</p>
+            </article>
+        {% endif %}
         <table class="history-table">
             <tr class="history-table-header-row">
                 <th class="history-table-row-header">Symbol</th>
