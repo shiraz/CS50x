@@ -1,4 +1,4 @@
-import { connectToDatabase } from '../../../lib/db';
+import { getMongoClient } from '../../../lib/db';
 import { hashPassword } from '../../../lib/auth';
 
 async function handler(req, res) {
@@ -18,7 +18,7 @@ async function handler(req, res) {
       return;
     }
 
-    const client = await connectToDatabase();
+    const client = await getMongoClient();
     const db = client.db();
     const hashedPwd = await hashPassword(password);
 
