@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-export async function connectToDatabase() {
+export async function getMongoClient() {
   const user = process.env.MONGO_DB_USERNAME;
   const pwd = process.env.MONGO_DB_PASSWORD;
 
