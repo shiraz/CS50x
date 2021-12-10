@@ -34,6 +34,16 @@
   font-weight: bold;
 }
 
+.active {
+  left: 50%;
+  width: 0;
+  bottom: 12px;
+  content: "";
+  transform: translateX(-50%);
+  transition: width 0.3s ease-out;
+  border-bottom: 4px solid #969892;
+}
+
 .header button {
   font: inherit;
   background-color: transparent;

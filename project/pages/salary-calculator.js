@@ -1,9 +1,7 @@
 import { getSession } from 'next-auth/client';
 
-import UserProfile from '../components/profile/user-profile';
-
-function ProfilePage() {
-  return <UserProfile />;
+function SalaryCalculator() {
+  return <p>TO DO</p>;
 }
 
 // Redirect to login if the user is not authenticated.
@@ -26,4 +24,4 @@ export async function getServerSideProps(context) {
   };
 }
 
-export default ProfilePage;
+export default SalaryCalculator;

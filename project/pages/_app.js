@@ -1,3 +1,5 @@
+import { Provider } from 'next-auth/client';
+
 import Layout from '../components/layout/layout';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -5,9 +7,11 @@ import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <Provider session={pageProps.session}>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </Provider>
   );
 }
 
