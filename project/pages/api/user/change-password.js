@@ -60,7 +60,7 @@ async function handler(req, res) {
 
   client.close();
   res.status(200).json({
-    message: 'Password updated!',
+    message: 'Password updated successfully!',
   });
 }
 

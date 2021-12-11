@@ -23,7 +23,9 @@ function MainNavigation() {
         <ul>
           {!session && !loading && (
             <li>
-              <a className={router.pathname == '/auth' ? classes.active : ''}>Login</a>
+              <Link href='/auth'>
+                <a className={router.pathname == '/auth' ? classes.active : ''}>Login</a>
+              </Link>
             </li>
           )}
           {session && (

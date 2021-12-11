@@ -11,10 +11,11 @@ export default NextAuth({
   providers: [
     Providers.Credentials({
       async authorize(credentials) {
+        const { email } = credentials;
         const client = await getMongoClient();
         const usersCollection = client.db().collection('users');
         const user = await usersCollection.findOne({
-          email: credentials.email,
+          email,
         });
 
         if (!user) {
@@ -28,7 +29,7 @@ export default NextAuth({
         );
 
         if (!isValid) {
-          throw new Error('The user could not log in!');
+          throw new Error('Invalid password detected.');
         }
 
         client.close();

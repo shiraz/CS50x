@@ -30,6 +30,8 @@ function AuthForm() {
   const passwordInputRef = useRef();
 
   const [isLogin, setIsLogin] = useState(true);
+  const [errorState, setError] = useState(false);
+  const [successState, setSuccess] = useState(false);
   const router = useRouter();
 
   function switchAuthModeHandler() {
@@ -49,16 +51,25 @@ function AuthForm() {
       });
 
       if (!result.error) {
-        // This is used to redirect to the profile page upon successful login.
-        router.replace('/profile');
+        router.replace('/salary-calculator');
+      } else {
+        setError({
+          message: result.error
+        });
+        setSuccess(false);
       }
       
     } else {
       try {
-        const result = await createUser(enteredEmail, enteredPassword);
-        console.log(result);
+        const responseData = await createUser(enteredEmail, enteredPassword);
+        setError(false);
+        setSuccess({
+          message: responseData.message
+        });
       } catch (error) {
-        console.error('Auth', error);
+        setError({
+          message: error.message
+        });
       }
     }
   }
@@ -91,6 +102,16 @@ function AuthForm() {
           </button>
         </div>
       </form>
+      {errorState && (
+        <div className='alert alert-danger' role='alert'>
+          {errorState.message}
+        </div>
+      )}
+      {successState && (
+        <div className='alert alert-success' role='alert'>
+          {successState.message}
+        </div>
+      )}
     </section>
   );
 }
