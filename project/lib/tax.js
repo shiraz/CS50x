@@ -22,10 +22,31 @@ export async function getIncomeTaxes(
     },
   });
 
+  const { status } = response;
+
+  if (status !== 200 ) {
+    return {
+        status,
+        message: response.statusText,
+    }
+  }
+
   const jsonResponse = await response.json();
 
+  const { annual, per_pay_period: perPayPeriod } = jsonResponse;
+  const perPayPeriodRounded = {
+    federal: Math.round(perPayPeriod.federal.amount * 1e2) / 1e2,
+    state: Math.round(perPayPeriod.state.amount * 1e2) / 1e2,
+    fica: Math.round(perPayPeriod.fica.amount * 1e2) / 1e2,
+  };
+
   return {
-    status: response.status,
-    ...jsonResponse,
+    status,
+    annual: {
+      federal: annual.federal.amount,
+      state: annual.state.amount,
+      fica: annual.fica.amount,
+    },
+    perPayPeriod: perPayPeriodRounded,
   };
 }

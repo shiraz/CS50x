@@ -10,7 +10,7 @@ async function handler(req, res) {
 
     if (payPeriodNum == 0) {
       res.status(400).json({
-          status: 400,
+        status: 400,
         message: `Invalid payPeriod value detected: '${payPeriod}'.`,
       });
     }
@@ -28,6 +28,9 @@ async function handler(req, res) {
 }
 
 function getPayPeriod(payPeriod) {
+    if (!payPeriod) {
+        return 0;
+    }
   switch (payPeriod.toLowerCase()) {
     case 'bi-weekly':
       return 26;
