@@ -31,6 +31,7 @@ function getPayPeriod(payPeriod) {
   if (!payPeriod) {
     return 0;
   }
+  
   switch (payPeriod.toLowerCase()) {
     case 'bi-weekly':
       return 26;
