@@ -35,9 +35,9 @@ export async function getIncomeTaxes(
 
   const { annual, per_pay_period: perPayPeriod } = jsonResponse;
   const perPayPeriodRounded = {
-    federal: Math.round(perPayPeriod.federal.amount * 1e2) / 1e2,
-    state: Math.round(perPayPeriod.state.amount * 1e2) / 1e2,
-    fica: Math.round(perPayPeriod.fica.amount * 1e2) / 1e2,
+    federal: getRoundedAmount(perPayPeriod.federal.amount),
+    state: getRoundedAmount(perPayPeriod.state.amount),
+    fica: getRoundedAmount(perPayPeriod.fica.amount),
   };
 
   return {
@@ -49,4 +49,8 @@ export async function getIncomeTaxes(
     },
     perPayPeriod: perPayPeriodRounded,
   };
+}
+
+function getRoundedAmount(amount) {
+    return Math.round(amount * 1e2) / 1e2;
 }
