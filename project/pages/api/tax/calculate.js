@@ -28,9 +28,9 @@ async function handler(req, res) {
 }
 
 function getPayPeriod(payPeriod) {
-    if (!payPeriod) {
-        return 0;
-    }
+  if (!payPeriod) {
+    return 0;
+  }
   switch (payPeriod.toLowerCase()) {
     case 'bi-weekly':
       return 26;

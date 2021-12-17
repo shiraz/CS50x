@@ -24,11 +24,11 @@ export async function getIncomeTaxes(
 
   const { status } = response;
 
-  if (status !== 200 ) {
+  if (status !== 200) {
     return {
-        status,
-        message: response.statusText,
-    }
+      status,
+      message: response.statusText,
+    };
   }
 
   const jsonResponse = await response.json();
