@@ -1,0 +1,23 @@
+[
+  {
+    "status": "",
+    "statusValue": "",
+    "disabled": true
+  },
+  {
+    "status": "Head of household",
+    "statusValue": "head_of_household"
+  },
+  {
+    "status": "Married",
+    "statusValue": "married"
+  },
+  {
+    "status": "Married filing separately",
+    "statusValue": "married_separately"
+  },
+  {
+    "status": "Single",
+    "statusValue": "single"
+  }
+]

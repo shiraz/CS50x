@@ -3,7 +3,7 @@ import { getIncomeTaxes } from '../../../lib/tax';
 async function handler(req, res) {
   if (req.method === 'POST') {
     const {
-      body: { exemption, filingStatus, payPeriod, payRate, state },
+      body: { exemptions, filingStatus, payPeriod, payRate, state },
     } = req;
 
     const payPeriodNum = getPayPeriod(payPeriod);
@@ -16,7 +16,7 @@ async function handler(req, res) {
     }
 
     const response = await getIncomeTaxes(
-      exemption,
+      exemptions,
       filingStatus,
       payPeriodNum,
       payRate,

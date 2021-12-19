@@ -1,0 +1,15 @@
+[
+    {
+        "key": "",
+        "period": "",
+        "disabled": true
+    },
+    {
+        "key": "bi-weekly",
+        "period": "Bi-Weekly"
+    },
+    {
+        "key": "monthly",
+        "period": "Monthly"
+    }
+]

@@ -1,12 +1,12 @@
 import Hero from './hero';
 
-import classes from './starting-page.module.css';
+import classes from './home.module.css';
 
-function StartingPageContent() {
+function HomePage() {
   // Show Link to Login page if NOT auth
 
   return (
-    <section className={classes.starting}>
+    <section className={classes.home}>
       <h1>Welcome to Budgetor</h1>
       <Hero />
       <p className='mt-5 text-center text-wrap fs-5'>
@@ -18,4 +18,4 @@ function StartingPageContent() {
   );
 }
 
-export default StartingPageContent;
+export default HomePage;

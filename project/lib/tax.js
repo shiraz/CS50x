@@ -1,5 +1,5 @@
 export async function getIncomeTaxes(
-  exemption,
+  exemptions,
   filingStatus,
   payPeriod,
   payRate,
@@ -10,7 +10,7 @@ export async function getIncomeTaxes(
   const response = await fetch('https://taxee.io/api/v2/calculate/2020', {
     method: 'POST',
     body: JSON.stringify({
-      exemptions: exemption,
+      exemptions,
       filing_status: filingStatus,
       pay_periods: payPeriod,
       pay_rate: payRate,
@@ -52,5 +52,5 @@ export async function getIncomeTaxes(
 }
 
 function getRoundedAmount(amount) {
-    return Math.round(amount * 1e2) / 1e2;
+    return Math.round(amount * 100) / 100;
 }
