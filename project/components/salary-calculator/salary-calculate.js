@@ -1,15 +1,18 @@
 import { useState } from 'react';
 
 import SalaryCalculateForm from './salary-calculate-form';
+import Results from './results';
 
 import classes from './salary-calculate-form';
 
 function SalaryCalculate() {
   const [errorState, setError] = useState(false);
   const [displayForm, setDisplayForm] = useState(true);
-  const [taxData, setTaxData] = useState(null); 
+  const [taxData, setTaxData] = useState(null);
+  const [formPayload, setFormPayload] = useState(null);
 
   async function calculateSalaryHandler(payload) {
+    setFormPayload(payload);
     const response = await fetch('/api/tax/calculate', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -40,7 +43,9 @@ function SalaryCalculate() {
           {errorState.message}
         </div>
       )}
-      {taxData && (<p>TO DO</p>)}
+      {!errorState && taxData && (
+        <Results payload={formPayload} taxData={taxData} />
+      )}
     </section>
   );
 }
