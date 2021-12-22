@@ -1,6 +1,20 @@
 # BUDGETOR
 The Budgetor is used to solve a problem that every potential USA immigrant faces; how much money does a person actually make after all income taxes have been taken out? The site supports net paycheck calculation after federal, FICA and state taxes have been taken out from the gross pay amount.
 
+## GETTING STARTED
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in the web browser to see the result.
+
+### VIDEO DEMO
+
+
 ### DESCRIPTION
 This is a Next.js (a React.js framework) site where the project code is split into 5 directories:
 1. `pages` - This directory contains files that have React components associated with routes based on the filename as well as REST APIs that calculate taxes, performs user authentication, and password updates.
@@ -50,19 +64,6 @@ This is a Next.js (a React.js framework) site where the project code is split in
 7. `packages-lock.json` - This file describes the exact tree that was generated for all operations done during packages/dependencies installation.
 8. `node_modules` - This directory contains all the project dependecy files.
 9. `.env.local` - This file contains all the secret keys that are to be used in the project; MongoDb Atlas Credentials and the Taxee API key.
-
-## GETTING STARTED
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in the web browser to see the result.
-
-### VIDEO DEMO
 
 ### PROJECT DEPENDENCIES
 1. MongoDb Atlas Credentials
