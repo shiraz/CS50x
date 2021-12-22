@@ -6,7 +6,7 @@ import Results from './results';
 import classes from './salary-calculate-form';
 
 function SalaryCalculate() {
-  const [errorState, setError] = useState(false);
+  const [errorState, setError] = useState(null);
   const [displayForm, setDisplayForm] = useState(true);
   const [taxData, setTaxData] = useState(null);
   const [formPayload, setFormPayload] = useState(null);
@@ -28,7 +28,7 @@ function SalaryCalculate() {
       });
     } else {
       setDisplayForm(false);
-      setError(false);
+      setError(null);
       setTaxData(responseData);
     }
   }
