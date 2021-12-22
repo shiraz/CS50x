@@ -19,8 +19,8 @@ Open [http://localhost:3000](http://localhost:3000) in the web browser to see th
 This is a Next.js (a React.js framework) site where the project code is split into 5 directories:
 1. `pages` - This directory contains files that have React components associated with routes based on the filename as well as REST APIs that calculate taxes, performs user authentication, and password updates.
     1. `api`
-        1. `auth/[...nextauth].js` - This API is used to authenticate the user. MongoDb is used as the backend specifically the `users` collection that contains the email address and the hashed password. 
-        2. `auth/signup.js` - This API is used to register the user. MongoDb is used as the backend specifically the `users` collection that stores the email address and the hashed password.
+        1. `auth/[...nextauth].js` - This API is used to authenticate the user. MongoDB is used as the backend specifically the `users` collection that contains the email address and the hashed password. 
+        2. `auth/signup.js` - This API is used to register the user. MongoDB is used as the backend specifically the `users` collection that stores the email address and the hashed password.
         3. `tax/calculate.js` - This API is used to calculate the income taxes based on the user's `Pay Rate`, `Pay Period`, `State`, `Exemptions`, and `Filing Status`. A JSON response is returned containing the income taxes for `Federal`, `State`, and `FICA` for the `Pay Period` as well as annually.
         4. `user/change-password.js` - This API is used to change the user's password.
     2. `pages`
@@ -63,8 +63,8 @@ This is a Next.js (a React.js framework) site where the project code is split in
 6. `packages.json` - This file contains all the dependencies that are used in this Next.js site.
 7. `packages-lock.json` - This file describes the exact tree that was generated for all operations done during packages/dependencies installation.
 8. `node_modules` - This directory contains all the project dependecy files.
-9. `.env.local` - This file contains all the secret keys that are to be used in the project; MongoDb Atlas Credentials and the Taxee API key.
+9. `.env.local` - This file contains all the secret keys that are to be used in the project; MongoDB Atlas Credentials and the Taxee API key.
 
 ### DEPENDENCIES
-1. MongoDb Atlas Credentials
+1. MongoDB Atlas Credentials
 2. Taxee API Key
