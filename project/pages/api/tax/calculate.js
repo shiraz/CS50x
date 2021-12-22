@@ -9,35 +9,35 @@ async function handler(req, res) {
     if (!exemptions) {
       res.status(400).json({
         status: 400,
-        message: "The 'exemptions' vallue cannot be empty.",
+        message: "The 'exemptions' value cannot be empty.",
       });
     }
 
     if (!filingStatus) {
       res.status(400).json({
         status: 400,
-        message: "The 'filingStatus' vallue cannot be empty.",
+        message: "The 'filingStatus' value cannot be empty.",
       });
     }
 
     if (!payPeriod) {
       res.status(400).json({
         status: 400,
-        message: "The 'payPeriod' vallue cannot be empty.",
+        message: "The 'payPeriod' value cannot be empty.",
       });
     }
 
     if (!payRate) {
       res.status(400).json({
         status: 400,
-        message: "The 'payRate' vallue cannot be empty.",
+        message: "The 'payRate' value cannot be empty.",
       });
     }
 
     if (!state) {
       res.status(400).json({
         status: 400,
-        message: "The 'state' vallue cannot be empty.",
+        message: "The 'state' value cannot be empty.",
       });
     }
 
