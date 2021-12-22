@@ -15,7 +15,7 @@ Open [http://localhost:3000](http://localhost:3000) in the web browser to see th
 ### VIDEO DEMO
 
 
-### DESCRIPTION
+## PROJECT DESCRIPTION
 This is a Next.js (a React.js framework) site where the project code is split into 5 directories:
 1. `pages` - This directory contains files that have React components associated with routes based on the filename as well as REST APIs that calculate taxes, performs user authentication, and password updates.
     1. `api`
@@ -65,6 +65,6 @@ This is a Next.js (a React.js framework) site where the project code is split in
 8. `node_modules` - This directory contains all the project dependecy files.
 9. `.env.local` - This file contains all the secret keys that are to be used in the project; MongoDb Atlas Credentials and the Taxee API key.
 
-### PROJECT DEPENDENCIES
+### DEPENDENCIES
 1. MongoDb Atlas Credentials
 2. Taxee API Key
