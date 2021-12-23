@@ -12,8 +12,8 @@ yarn dev
 
 Open [http://localhost:3000](http://localhost:3000) in the web browser to see the result.
 
-### VIDEO DEMO
-
+## VIDEO DEMO
+[https://youtu.be/6Qrp9YC_Na0](https://youtu.be/6Qrp9YC_Na0)
 
 ## PROJECT DESCRIPTION
 This is a Next.js (a React.js framework) site where the project code is split into 5 directories:
